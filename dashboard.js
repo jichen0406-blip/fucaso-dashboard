@@ -261,7 +261,8 @@ async function processData() {
       if (h === '医疗机构名称') ci.orgName = i;
       if (h === '患者姓名') ci.patient = i;
       if (h.includes('合同创建') && h.includes('日期')) ci.od = i;
-      if (h.includes('实际回输') && h.includes('结束时间')) ci.re = i;
+      if (h.includes('实际单采') && h.includes('开始时间')) ci.ap = i;
+      if (h.includes('生产质量') && h.includes('放行时间')) ci.qa = i;
     });
 
     var records = [];
@@ -269,7 +270,7 @@ async function processData() {
 
     for (var i = 2; i < bsRows.length; i++) {
       var row = bsRows[i]; if (!row) continue;
-      var od = excelToDate(row[ci.od]), re = parseDt(row[ci.re]);
+      var od = excelToDate(row[ci.od]), re = parseDt(row[ci.re]), ap = parseDt(row[ci.ap]), qa = parseDt(row[ci.qa]);
 
       var code1 = String(row[ci.org] || '').trim();
       var code2 = String(row[5] || '').trim();
@@ -298,7 +299,7 @@ async function processData() {
       if (!hosp) continue;
       var patient = maskName(row[ci.patient]);
       var isSG = (prov === '新加坡' || prov.includes('新加坡'));
-      records.push({ hosp, prov: isSG ? '' : prov, od, re, noMap: isSG, patient: patient });
+      records.push({ hosp, prov: isSG ? '' : prov, od, re, ap, qa, noMap: isSG, patient: patient });
     }
 
     if (unmatchedWarnings.length > 0) {
@@ -342,7 +343,26 @@ async function processData() {
     for (var d = 6; d >= 0; d--) {
       var dt = new Date(dpDate); dt.setDate(dt.getDate() - d);
       var ds = toLocal(dt);
-      var oMap = {}, rMap = {};
+      var oMap = {}, rMap = {}, aMap = {}, qMap = {};
+      records.forEach(r => {
+        if (r.od === ds) {
+          var key = r.hosp + '|||' + r.patient;
+          oMap[key] = (oMap[key] || 0) + 1;
+        }
+        if (r.re === ds) {
+          var key = r.hosp + '|||' + r.patient;
+          rMap[key] = (rMap[key] || 0) + 1;
+        }
+        if (r.ap === ds) {
+          var key = r.hosp + '|||' + r.patient;
+          aMap[key] = (aMap[key] || 0) + 1;
+        }
+        if (r.qa === ds) {
+          var key = r.hosp + '|||' + r.patient;
+          qMap[key] = (qMap[key] || 0) + 1;
+        }
+      });
+      p7.push({ date: ds, orders: oMap, reinfusion: rMap, apheresis: aMap, quality: qMap });
       records.forEach(r => {
         if (r.od === ds) {
           var key = r.hosp + '|||' + r.patient;
@@ -372,7 +392,13 @@ async function processData() {
 
     p7.reverse();
 
-    var p7totalO = 0, p7totalR = 0;
+    var p7totalO = 0, p7totalR = 0, p7totalA = 0, p7totalQ = 0;
+    p7.forEach(d => {
+      p7totalO += Object.values(d.orders).reduce((a, b) => a + b, 0);
+      p7totalR += Object.values(d.reinfusion).reduce((a, b) => a + b, 0);
+      p7totalA += Object.values(d.apheresis).reduce((a, b) => a + b, 0);
+      p7totalQ += Object.values(d.quality).reduce((a, b) => a + b, 0);
+    });
     p7.forEach(d => {
       p7totalO += Object.values(d.orders).reduce((a, b) => a + b, 0);
       p7totalR += Object.values(d.reinfusion).reduce((a, b) => a + b, 0);
@@ -384,6 +410,21 @@ async function processData() {
     );
 
     var todayO = records.filter(r => r.od === DP).length;
+    var todayR = records.filter(r => r.re === DP).length;
+    var todayA = records.filter(r => r.ap === DP).length;
+    var todayQ = records.filter(r => r.qa === DP).length;
+
+    state.records = records;
+    state.summary = {
+      DP, Y, dpM, dpM0,
+      ytdO, ytdR, mtdO, mtdR,
+      todayO, todayR, todayA, todayQ,
+      p7totalO, p7totalR, p7totalA, p7totalQ,
+      topProvNames,
+      monO, monR,
+      mapJson, provRank5,
+      p7
+    };
     var todayR = records.filter(r => r.re === DP).length;
 
     state.records = records;
@@ -426,6 +467,8 @@ function renderDashboard() {
     var wd = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][dObj.getDay()];
     var oTot = Object.values(day.orders).reduce((a, b) => a + b, 0);
     var rTot = Object.values(day.reinfusion).reduce((a, b) => a + b, 0);
+    var aTot = Object.values(day.apheresis).reduce((a, b) => a + b, 0);
+    var qTot = Object.values(day.quality).reduce((a, b) => a + b, 0);
 
     var oLi = topN(day.orders, 12).map(e => {
       var parts = e[0].split('|||');
@@ -435,12 +478,22 @@ function renderDashboard() {
       var parts = e[0].split('|||');
       return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc r">' + e[1] + '单</span></li>';
     }).join('');
+    var aLi = topN(day.apheresis, 12).map(e => {
+      var parts = e[0].split('|||');
+      return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc a">' + e[1] + '单</span></li>';
+    }).join('');
+    var qLi = topN(day.quality, 12).map(e => {
+      var parts = e[0].split('|||');
+      return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc q">' + e[1] + '单</span></li>';
+    }).join('');
     if (!oLi) oLi = '<li><span class="dim">暂无数据</span></li>';
     if (!rLi) rLi = '<li><span class="dim">暂无数据</span></li>';
+    if (!aLi) aLi = '<li><span class="dim">暂无数据</span></li>';
+    if (!qLi) qLi = '<li><span class="dim">暂无数据</span></li>';
 
-    var dayTotal = '<span class="d-o">下单' + oTot + '</span><span class="d-r">回输' + rTot + '</span>';
-    tableRows += '<tr><td class="cell-date"><div class="date-tl">' + mmdd + '</div><div class="date-wd">' + wd + '</div><div class="date-sum">' + dayTotal + '</div></td><td><ul class="hlist">' + oLi + '</ul></td><td><ul class="hlist">' + rLi + '</ul></td></tr>\n';
-  });
+    var dayTotal = '<span class="d-o">下单' + oTot + '</span><span class="d-r">回输' + rTot + '</span><span class="d-a">单采' + aTot + '</span><span class="d-q">放行' + qTot + '</span>';
+    tableRows += '<tr><td class="cell-date"><div class="date-tl">' + mmdd + '</div><div class="date-wd">' + wd + '</div><div class="date-sum">' + dayTotal + '</div></td><td><ul class="hlist">' + oLi + '</ul></td><td><ul class="hlist">' + rLi + '</ul></td><td><ul class="hlist">' + aLi + '</ul></td><td><ul class="hlist">' + qLi + '</ul></td></tr>\n';
+
 
   var rankHtml = '';
   s.provRank5.forEach(function(e, i) {
@@ -502,18 +555,18 @@ function renderDashboard() {
 
     <div class="insight-bar">
       <div class="dot"></div>
-      <b>本周观察：</b>过去7天累计下单 <b>${s.p7totalO}</b> 单，回输 <b>${s.p7totalR}</b> 单；${s.topProvNames.join('、')}为主要贡献区域。
+      <b>本周观察：</b>过去7天累计下单 <b>${s.p7totalO}</b> 单，回输 <b>${s.p7totalR}</b> 单，单采 <b>${s.p7totalA}</b> 单，放行 <b>${s.p7totalQ}</b> 单；${s.topProvNames.join('、')}为主要贡献区域。
     </div>
 
     <div class="section-block">
       <div class="sec-head">
         <div class="line"></div>
-        <span class="ttl">过去七天 · 下单 & 回输明细</span>
+        <span class="ttl">过去七天 · 下单 & 回输 & 单采 & 放行明细</span>
         <span class="sub">${s.p7[6].date} → ${s.p7[0].date}</span>
       </div>
       <table class="timeline-table">
         <thead>
-          <tr><th style="width:14%">日期</th><th style="width:43%">下单明细</th><th style="width:43%">回输明细</th></tr>
+          <tr><th style="width:10%">日期</th><th style="width:22.5%">下单明细</th><th style="width:22.5%">回输明细</th><th style="width:22.5%">单采明细</th><th style="width:22.5%">放行明细</th></tr>
         </thead>
         <tbody>
           ${tableRows}

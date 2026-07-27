@@ -77,6 +77,8 @@ headers.forEach((h, i) => {
   if (h === '患者姓名') ci.patient = i;
   if (h.includes('合同创建') && h.includes('日期')) ci.od = i;
   if (h.includes('实际回输') && h.includes('结束时间')) ci.re = i;
+  if (h.includes('实际单采') && h.includes('开始时间')) ci.ap = i;
+  if (h.includes('生产质量') && h.includes('放行时间')) ci.qa = i;
 });
 
 var records = [];
@@ -84,7 +86,7 @@ var unmatchedWarnings = [];
 
 for (var i = 2; i < bsRows.length; i++) {
   var row = bsRows[i]; if (!row) continue;
-  var od = excelToDate(row[ci.od]), re = parseDt(row[ci.re]);
+  var od = excelToDate(row[ci.od]), re = parseDt(row[ci.re]), ap = parseDt(row[ci.ap]), qa = parseDt(row[ci.qa]);
   var code1 = String(row[ci.org] || '').trim();
   var code2 = String(row[5] || '').trim();
   var m = null;
@@ -112,7 +114,7 @@ for (var i = 2; i < bsRows.length; i++) {
   if (!hosp) continue;
   var patient = maskName(row[ci.patient]);
   var isSG = (prov === '新加坡' || prov.includes('新加坡'));
-  records.push({ hosp, prov: isSG ? '' : prov, od, re, noMap: isSG, patient: patient });
+  records.push({ hosp, prov: isSG ? '' : prov, od, re, ap, qa, noMap: isSG, patient: patient });
 }
 
 if (unmatchedWarnings.length > 0) {
@@ -154,7 +156,7 @@ var p7 = [];
 for (var d = 6; d >= 0; d--) {
   var dt = new Date(dpDate); dt.setDate(dt.getDate() - d);
   var ds = toLocal(dt);
-  var oMap = {}, rMap = {};
+  var oMap = {}, rMap = {}, aMap = {}, qMap = {};
   records.forEach(r => {
     if (r.od === ds) {
       var key = r.hosp + '|||' + r.patient;
@@ -164,8 +166,16 @@ for (var d = 6; d >= 0; d--) {
       var key = r.hosp + '|||' + r.patient;
       rMap[key] = (rMap[key]||0)+1;
     }
+    if (r.ap === ds) {
+      var key = r.hosp + '|||' + r.patient;
+      aMap[key] = (aMap[key]||0)+1;
+    }
+    if (r.qa === ds) {
+      var key = r.hosp + '|||' + r.patient;
+      qMap[key] = (qMap[key]||0)+1;
+    }
   });
-  p7.push({ date: ds, orders: oMap, reinfusion: rMap });
+  p7.push({ date: ds, orders: oMap, reinfusion: rMap, apheresis: aMap, quality: qMap });
 }
 
 var provGeoMap = { '香港':'香港特别行政区','澳门':'澳门特别行政区','台湾':'台湾省','新加坡':'' };
@@ -184,10 +194,12 @@ var provRank5 = Object.entries(provData).sort((a,b) => b[1]-a[1]).slice(0, 5);
 
 p7.reverse();
 
-var p7totalO = 0, p7totalR = 0;
+var p7totalO = 0, p7totalR = 0, p7totalA = 0, p7totalQ = 0;
 p7.forEach(d => {
   p7totalO += Object.values(d.orders).reduce((a,b)=>a+b,0);
   p7totalR += Object.values(d.reinfusion).reduce((a,b)=>a+b,0);
+  p7totalA += Object.values(d.apheresis).reduce((a,b)=>a+b,0);
+  p7totalQ += Object.values(d.quality).reduce((a,b)=>a+b,0);
 });
 
 var topProvNames = provRank5.slice(0,3).map(e =>
@@ -197,12 +209,14 @@ var topProvNames = provRank5.slice(0,3).map(e =>
 
 var todayO = records.filter(r => r.od === DP).length;
 var todayR = records.filter(r => r.re === DP).length;
+var todayA = records.filter(r => r.ap === DP).length;
+var todayQ = records.filter(r => r.qa === DP).length;
 
 var summary = {
   DP, Y, dpM, dpM0,
   ytdO, ytdR, mtdO, mtdR,
-  todayO, todayR,
-  p7totalO, p7totalR,
+  todayO, todayR, todayA, todayQ,
+  p7totalO, p7totalR, p7totalA, p7totalQ,
   topProvNames,
   monO, monR,
   mapJson, provRank5,
@@ -219,7 +233,7 @@ fs.writeFileSync(outPath, outContent, 'utf-8');
 console.log('\n✅ 内置数据已生成: ' + outPath);
 console.log('YTD下单:', ytdO, ' YTD回输:', ytdR);
 console.log('MTD下单:', mtdO, ' MTD回输:', mtdR);
-console.log('当日('+DP+'): 下单'+todayO+' 回输'+todayR);
-console.log('过去7天: 下单'+p7totalO+' 回输'+p7totalR);
+console.log('当日('+DP+'): 下单'+todayO+' 回输'+todayR+' 单采'+todayA+' 放行'+todayQ);
+console.log('过去7天: 下单'+p7totalO+' 回输'+p7totalR+' 单采'+p7totalA+' 放行'+p7totalQ);
 console.log('Top5省份:', provRank5.map(e=>e[0]+'('+e[1]+')').join(', '));
 console.log('\n下一步：将 data-inline.js 提交到 GitHub，网站会自动展示最新数据。');
