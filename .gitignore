@@ -1,0 +1,15 @@
+# 忽略的文件
+node_modules/
+.DS_Store
+*.log
+.env
+.env.local
+
+# 构建输出（如果有）
+dist/
+build/
+
+# rawdata 中的 Excel 数据文件不上传 GitHub
+# 但保留 rawdata/ 目录结构
+rawdata/*
+!rawdata/.gitkeep

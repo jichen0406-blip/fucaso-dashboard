@@ -1,0 +1,11 @@
+/index.html
+  Cache-Control: no-cache
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/*.js
+  Cache-Control: max-age=86400
+
+/*.css
+  Cache-Control: max-age=86400
