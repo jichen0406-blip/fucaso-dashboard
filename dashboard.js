@@ -824,6 +824,25 @@ function initDashboard() {
     switchPage('dashboard');
     renderDashboard();
     document.getElementById('btnDownload').addEventListener('click', downloadPNG);
+    document.getElementById('btnReupload').addEventListener('click', () => {
+      state.files = { bsOrder: null, masterdata: null };
+      state.records = [];
+      state.summary = {};
+      if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
+      if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
+      document.getElementById('posterContent').innerHTML = '';
+      initUploadMode();
+      switchPage('upload');
+    });
+    initAdminToggle();
+    window.addEventListener('resize', handleResize);
+    return;
+  }
+    console.log('✅ 检测到内置数据，直接渲染 Dashboard');
+    state.summary = window.BUILTIN_DATA;
+    switchPage('dashboard');
+    renderDashboard();
+    document.getElementById('btnDownload').addEventListener('click', downloadPNG);
     initAdminToggle();
     window.addEventListener('resize', handleResize);
     return;
