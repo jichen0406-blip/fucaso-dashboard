@@ -445,19 +445,19 @@ function renderDashboard() {
 
     var oLi = topN(day.orders, 12).map(e => {
       var parts = e[0].split('|||');
-      return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc o">' + e[1] + '单</span></li>';
+      return '<li><span class="hn">● ' + parts[0] + '</span><div class="lsub"><span class="hp">' + parts[1] + '</span><span class="hc o">' + e[1] + '单</span></div></li>';
     }).join('');
     var rLi = topN(day.reinfusion, 12).map(e => {
       var parts = e[0].split('|||');
-      return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc r">' + e[1] + '单</span></li>';
+      return '<li><span class="hn">● ' + parts[0] + '</span><div class="lsub"><span class="hp">' + parts[1] + '</span><span class="hc r">' + e[1] + '单</span></div></li>';
     }).join('');
     var aLi = topN(day.apheresis, 12).map(e => {
       var parts = e[0].split('|||');
-      return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc a">' + e[1] + '单</span></li>';
+      return '<li><span class="hn">● ' + parts[0] + '</span><div class="lsub"><span class="hp">' + parts[1] + '</span><span class="hc a">' + e[1] + '单</span></div></li>';
     }).join('');
     var qLi = topN(day.quality, 12).map(e => {
       var parts = e[0].split('|||');
-      return '<li><span class="hn">' + parts[0] + '</span><span class="hp">' + parts[1] + '</span><span class="hc q">' + e[1] + '单</span></li>';
+      return '<li><span class="hn">● ' + parts[0] + '</span><div class="lsub"><span class="hp">' + parts[1] + '</span><span class="hc q">' + e[1] + '单</span></div></li>';
     }).join('');
     if (!oLi) oLi = '<li><span class="dim">暂无数据</span></li>';
     if (!rLi) rLi = '<li><span class="dim">暂无数据</span></li>';
@@ -704,7 +704,7 @@ function initChinaMapChart() {
 
   var c = echarts.init(el, null, { devicePixelRatio: 2 });
 
-  fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+  fetch('./china.json')
     .then(r => r.json())
     .then(g => {
       echarts.registerMap('china', g);
@@ -827,19 +827,6 @@ function initDashboard() {
       document.getElementById('btnDownload').addEventListener('click', downloadPNG);
       document.getElementById('btnDownload').dataset.bound = '1';
     }
-    if (!document.getElementById('btnReupload').dataset.bound) {
-      document.getElementById('btnReupload').addEventListener('click', () => {
-        state.files = { bsOrder: null, masterdata: null };
-        state.records = [];
-        state.summary = {};
-        if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
-        if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
-        document.getElementById('posterContent').innerHTML = '';
-        initUploadMode();
-        switchPage('upload');
-      });
-      document.getElementById('btnReupload').dataset.bound = '1';
-    }
     initAdminToggle();
     window.addEventListener('resize', handleResize);
     return;
@@ -858,6 +845,11 @@ function initAdminToggle() {
     adminBtn.className = 'btn btn-secondary';
     adminBtn.textContent = '🔧 管理员更新数据';
     adminBtn.onclick = function() {
+      var pwd = prompt('请输入管理员密码：');
+      if (pwd !== '1qaz2wsx') {
+        showToast('❌ 管理员密码错误', 'error');
+        return;
+      }
       if (confirm('切换到管理员上传模式？当前 Dashboard 数据将被替换。')) {
         state.summary = {};
         if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
@@ -880,18 +872,6 @@ function initUploadMode() {
   if (!document.getElementById('btnDownload').dataset.bound) {
     document.getElementById('btnDownload').addEventListener('click', downloadPNG);
     document.getElementById('btnDownload').dataset.bound = '1';
-  }
-  if (!document.getElementById('btnReupload').dataset.bound) {
-    document.getElementById('btnReupload').addEventListener('click', () => {
-      state.files = { bsOrder: null, masterdata: null };
-      state.records = [];
-      state.summary = {};
-      if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
-      if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
-      updateFileList();
-      switchPage('upload');
-    });
-    document.getElementById('btnReupload').dataset.bound = '1';
   }
   window.addEventListener('resize', handleResize);
 }

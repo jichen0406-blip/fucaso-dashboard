@@ -482,6 +482,31 @@ body {
 .hlist { list-style: none; }
 .hlist li {
   padding: 2px 0;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.hlist .hn { color: var(--t2); font-size: 12px; }
+.hlist .lsub {
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hlist .hp {
+  color: #4a5578;
+  font-size: 10px;
+}
+.hlist .hc {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 5px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.hlist li {
+  padding: 2px 0;
   line-height: 1.6;
   display: flex;
   align-items: baseline;
@@ -780,7 +805,6 @@ body {
 
   <div class="actions-bar">
     <button class="btn btn-primary" id="btnDownload">📸 下载日报 PNG</button>
-    <button class="btn btn-secondary" id="btnReupload">📂 重新上传数据</button>
   </div>
 </div>
 
