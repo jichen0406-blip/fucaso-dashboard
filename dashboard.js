@@ -823,17 +823,23 @@ function initDashboard() {
     state.summary = window.BUILTIN_DATA;
     switchPage('dashboard');
     renderDashboard();
-    document.getElementById('btnDownload').addEventListener('click', downloadPNG);
-    document.getElementById('btnReupload').addEventListener('click', () => {
-      state.files = { bsOrder: null, masterdata: null };
-      state.records = [];
-      state.summary = {};
-      if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
-      if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
-      document.getElementById('posterContent').innerHTML = '';
-      initUploadMode();
-      switchPage('upload');
-    });
+    if (!document.getElementById('btnDownload').dataset.bound) {
+      document.getElementById('btnDownload').addEventListener('click', downloadPNG);
+      document.getElementById('btnDownload').dataset.bound = '1';
+    }
+    if (!document.getElementById('btnReupload').dataset.bound) {
+      document.getElementById('btnReupload').addEventListener('click', () => {
+        state.files = { bsOrder: null, masterdata: null };
+        state.records = [];
+        state.summary = {};
+        if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
+        if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
+        document.getElementById('posterContent').innerHTML = '';
+        initUploadMode();
+        switchPage('upload');
+      });
+      document.getElementById('btnReupload').dataset.bound = '1';
+    }
     initAdminToggle();
     window.addEventListener('resize', handleResize);
     return;
@@ -846,8 +852,9 @@ function initDashboard() {
 
 function initAdminToggle() {
   var actionsBar = document.querySelector('.actions-bar');
-  if (actionsBar) {
+  if (actionsBar && !document.getElementById('adminBtn')) {
     var adminBtn = document.createElement('button');
+    adminBtn.id = 'adminBtn';
     adminBtn.className = 'btn btn-secondary';
     adminBtn.textContent = '🔧 管理员更新数据';
     adminBtn.onclick = function() {
@@ -866,17 +873,26 @@ function initAdminToggle() {
 
 function initUploadMode() {
   initUpload();
-  document.getElementById('btnGenerate').addEventListener('click', processData);
-  document.getElementById('btnDownload').addEventListener('click', downloadPNG);
-  document.getElementById('btnReupload').addEventListener('click', () => {
-    state.files = { bsOrder: null, masterdata: null };
-    state.records = [];
-    state.summary = {};
-    if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
-    if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
-    updateFileList();
-    switchPage('upload');
-  });
+  if (!document.getElementById('btnGenerate').dataset.bound) {
+    document.getElementById('btnGenerate').addEventListener('click', processData);
+    document.getElementById('btnGenerate').dataset.bound = '1';
+  }
+  if (!document.getElementById('btnDownload').dataset.bound) {
+    document.getElementById('btnDownload').addEventListener('click', downloadPNG);
+    document.getElementById('btnDownload').dataset.bound = '1';
+  }
+  if (!document.getElementById('btnReupload').dataset.bound) {
+    document.getElementById('btnReupload').addEventListener('click', () => {
+      state.files = { bsOrder: null, masterdata: null };
+      state.records = [];
+      state.summary = {};
+      if (state.charts.bar) { state.charts.bar.dispose(); state.charts.bar = null; }
+      if (state.charts.map) { state.charts.map.dispose(); state.charts.map = null; }
+      updateFileList();
+      switchPage('upload');
+    });
+    document.getElementById('btnReupload').dataset.bound = '1';
+  }
   window.addEventListener('resize', handleResize);
 }
 
