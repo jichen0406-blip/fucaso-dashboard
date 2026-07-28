@@ -1,17 +1,21 @@
 /** 内置数据 — 由 build-data.js 自动生成 */
 window.BUILTIN_DATA = {
-  "DP": "2026-07-27",
+  "DP": "2026-07-28",
   "Y": "2026",
   "dpM": "07",
   "dpM0": 7,
-  "ytdO": 219,
-  "ytdR": 153,
-  "mtdO": 25,
-  "mtdR": 17,
+  "ytdO": 220,
+  "ytdR": 155,
+  "mtdO": 26,
+  "mtdR": 19,
   "todayO": 0,
   "todayR": 0,
-  "p7totalO": 4,
-  "p7totalR": 2,
+  "todayA": 0,
+  "todayQ": 0,
+  "p7totalO": 3,
+  "p7totalR": 3,
+  "p7totalA": 7,
+  "p7totalQ": 4,
   "topProvNames": [
     "天津",
     "北京",
@@ -24,7 +28,7 @@ window.BUILTIN_DATA = {
     36,
     30,
     28,
-    25,
+    26,
     0,
     0,
     0,
@@ -38,7 +42,7 @@ window.BUILTIN_DATA = {
     24,
     30,
     23,
-    17,
+    19,
     0,
     0,
     0,
@@ -132,7 +136,7 @@ window.BUILTIN_DATA = {
     },
     {
       "name": "四川省",
-      "value": 5
+      "value": 6
     },
     {
       "name": "贵州省",
@@ -207,31 +211,65 @@ window.BUILTIN_DATA = {
   ],
   "p7": [
     {
+      "date": "2026-07-28",
+      "orders": {},
+      "reinfusion": {},
+      "apheresis": {},
+      "quality": {}
+    },
+    {
       "date": "2026-07-27",
       "orders": {},
-      "reinfusion": {}
+      "reinfusion": {
+        "重庆医科大学附属第一医院|||唐*": 1,
+        "中山大学肿瘤医院|||李*玲": 1
+      },
+      "apheresis": {},
+      "quality": {}
     },
     {
       "date": "2026-07-26",
       "orders": {},
-      "reinfusion": {}
+      "reinfusion": {},
+      "apheresis": {},
+      "quality": {}
     },
     {
       "date": "2026-07-25",
       "orders": {},
-      "reinfusion": {}
+      "reinfusion": {},
+      "apheresis": {},
+      "quality": {
+        "上海市同济医院|||M*. M*N A*N": 1
+      }
     },
     {
       "date": "2026-07-24",
       "orders": {
+        "四川大学华西医院|||黄*良": 1,
         "上海交通大学医学院附属瑞金医院|||林*桂": 1
       },
-      "reinfusion": {}
+      "reinfusion": {},
+      "apheresis": {
+        "上海交通大学医学院附属瑞金医院|||常*成": 1
+      },
+      "quality": {
+        "江南大学附属医院（南院）|||徐*娣": 1
+      }
     },
     {
       "date": "2026-07-23",
       "orders": {},
-      "reinfusion": {}
+      "reinfusion": {},
+      "apheresis": {
+        "华中科技大学同济医学院附属协和医院|||马*": 1,
+        "川北医学院附属医院|||刘*均": 1,
+        "上海仁济医院|||王*": 1,
+        "玛丽医院（Queen Mary Hospital）|||S*U S*I N*I": 1
+      },
+      "quality": {
+        "中山大学附属第一医院|||许*华": 1
+      }
     },
     {
       "date": "2026-07-22",
@@ -240,16 +278,13 @@ window.BUILTIN_DATA = {
       },
       "reinfusion": {
         "天津医科大学肿瘤医院（空港院区）|||潘*娜": 1
-      }
-    },
-    {
-      "date": "2026-07-21",
-      "orders": {
-        "空军军医大学西京医院|||董*麟": 1,
-        "中国医学科学院血液病医院|||傅*军": 1
       },
-      "reinfusion": {
-        "上海仁济医院|||张*和": 1
+      "apheresis": {
+        "中国医学科学院血液病医院|||续*玲": 1,
+        "空军军医大学西京医院|||董*麟": 1
+      },
+      "quality": {
+        "山东大学齐鲁医院|||闫*芹": 1
       }
     }
   ]

@@ -838,15 +838,6 @@ function initDashboard() {
     window.addEventListener('resize', handleResize);
     return;
   }
-    console.log('✅ 检测到内置数据，直接渲染 Dashboard');
-    state.summary = window.BUILTIN_DATA;
-    switchPage('dashboard');
-    renderDashboard();
-    document.getElementById('btnDownload').addEventListener('click', downloadPNG);
-    initAdminToggle();
-    window.addEventListener('resize', handleResize);
-    return;
-  }
 
   // 无内置数据，显示上传页面
   console.log('ℹ️ 无内置数据，显示上传页面');
