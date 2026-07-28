@@ -261,6 +261,7 @@ async function processData() {
       if (h === '医疗机构名称') ci.orgName = i;
       if (h === '患者姓名') ci.patient = i;
       if (h.includes('合同创建') && h.includes('日期')) ci.od = i;
+      if (h.includes('实际回输') && h.includes('结束时间')) ci.re = i;
       if (h.includes('实际单采') && h.includes('开始时间')) ci.ap = i;
       if (h.includes('生产质量') && h.includes('放行时间')) ci.qa = i;
     });
@@ -363,17 +364,6 @@ async function processData() {
         }
       });
       p7.push({ date: ds, orders: oMap, reinfusion: rMap, apheresis: aMap, quality: qMap });
-      records.forEach(r => {
-        if (r.od === ds) {
-          var key = r.hosp + '|||' + r.patient;
-          oMap[key] = (oMap[key] || 0) + 1;
-        }
-        if (r.re === ds) {
-          var key = r.hosp + '|||' + r.patient;
-          rMap[key] = (rMap[key] || 0) + 1;
-        }
-      });
-      p7.push({ date: ds, orders: oMap, reinfusion: rMap });
     }
 
     var provGeoMap = { '香港': '香港特别行政区', '澳门': '澳门特别行政区', '台湾': '台湾省', '新加坡': '' };
@@ -399,10 +389,6 @@ async function processData() {
       p7totalA += Object.values(d.apheresis).reduce((a, b) => a + b, 0);
       p7totalQ += Object.values(d.quality).reduce((a, b) => a + b, 0);
     });
-    p7.forEach(d => {
-      p7totalO += Object.values(d.orders).reduce((a, b) => a + b, 0);
-      p7totalR += Object.values(d.reinfusion).reduce((a, b) => a + b, 0);
-    });
 
     var topProvNames = provRank5.slice(0, 3).map(e =>
       e[0].replace('北京市', '北京').replace('天津市', '天津').replace('上海市', '上海')
@@ -420,19 +406,6 @@ async function processData() {
       ytdO, ytdR, mtdO, mtdR,
       todayO, todayR, todayA, todayQ,
       p7totalO, p7totalR, p7totalA, p7totalQ,
-      topProvNames,
-      monO, monR,
-      mapJson, provRank5,
-      p7
-    };
-    var todayR = records.filter(r => r.re === DP).length;
-
-    state.records = records;
-    state.summary = {
-      DP, Y, dpM, dpM0,
-      ytdO, ytdR, mtdO, mtdR,
-      todayO, todayR,
-      p7totalO, p7totalR,
       topProvNames,
       monO, monR,
       mapJson, provRank5,
@@ -493,7 +466,7 @@ function renderDashboard() {
 
     var dayTotal = '<span class="d-o">下单' + oTot + '</span><span class="d-r">回输' + rTot + '</span><span class="d-a">单采' + aTot + '</span><span class="d-q">放行' + qTot + '</span>';
     tableRows += '<tr><td class="cell-date"><div class="date-tl">' + mmdd + '</div><div class="date-wd">' + wd + '</div><div class="date-sum">' + dayTotal + '</div></td><td><ul class="hlist">' + oLi + '</ul></td><td><ul class="hlist">' + rLi + '</ul></td><td><ul class="hlist">' + aLi + '</ul></td><td><ul class="hlist">' + qLi + '</ul></td></tr>\n';
-
+  });
 
   var rankHtml = '';
   s.provRank5.forEach(function(e, i) {
