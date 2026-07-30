@@ -238,6 +238,24 @@ async function processData() {
     var mtdO = records.filter(r => inRange(r.od, Y + '-' + dpM + '-01', DP)).length;
     var mtdR = records.filter(r => inRange(r.re, Y + '-' + dpM + '-01', DP)).length;
 
+    var lyY = String(parseInt(Y) - 1);
+    var lyDP = lyY + DP.slice(4); // 去年同期日期
+    var lyMtdStart = lyY + '-' + dpM + '-01';
+    var lyYtdO = records.filter(r => inRange(r.od, lyY + '-01-01', lyDP)).length;
+    var lyYtdR = records.filter(r => inRange(r.re, lyY + '-01-01', lyDP)).length;
+    var lyMtdO = records.filter(r => inRange(r.od, lyMtdStart, lyDP)).length;
+    var lyMtdR = records.filter(r => inRange(r.re, lyMtdStart, lyDP)).length;
+
+    function calcYoy(curr, last) {
+      if (last === null || last === undefined || last === 0) return null;
+      return Math.round((curr - last) / last * 100);
+    }
+
+    var kpiYtdYoyO = calcYoy(ytdO, lyYtdO);
+    var kpiYtdYoyR = calcYoy(ytdR, lyYtdR);
+    var kpiMtdYoyO = calcYoy(mtdO, lyMtdO);
+    var kpiMtdYoyR = calcYoy(mtdR, lyMtdR);
+
     var monO = [0,0,0,0,0,0,0,0,0,0,0,0], monR = [0,0,0,0,0,0,0,0,0,0,0,0];
     records.forEach(r => {
       if (r.od && r.od >= Y + '-01-01') { var mi = parseInt(r.od.slice(5, 7)) - 1; if (mi < 12) monO[mi]++; }
@@ -333,7 +351,8 @@ async function processData() {
     var kpiYtdRateR = kpiYtdTargetR > 0 ? Math.round(ytdR / kpiYtdTargetR * 100) : 0;
     var kpiMtdRateO = kpiMtdTargetO > 0 ? Math.round(mtdO / kpiMtdTargetO * 100) : 0;
     var kpiMtdRateR = kpiMtdTargetR > 0 ? Math.round(mtdR / kpiMtdTargetR * 100) : 0;
-    var kpiYtdYoyO = null, kpiYtdYoyR = null, kpiMtdYoyO = null, kpiMtdYoyR = null;
+
+    // ============================================================
 
     // ============================================================
     // AM 销售达成表数据构建
@@ -648,6 +667,11 @@ function renderDashboard() {
         <div class="badge">${s.Y}年日报</div>
         <span class="ts">数据截止 ${s.DP}</span>
       </div>
+    </div>
+
+    <div class="kpi-notice-banner">
+      <span class="notice-icon">⚠️</span>
+      <span class="notice-text">所有KPI指标均依据当前辖区口径进行汇总计算，暂未包含特殊情况的处理与调整，因此统计结果与实际情况可能存在偏差，仅供内部参考，最终以线下周报发布的数据为准。</span>
     </div>
 
     <div class="kpi-disclaimer">本报告数据仅供内部参考，不构成对外披露依据。统计口径以细胞追溯系统实际记录时间为准。</div>

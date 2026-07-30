@@ -280,12 +280,14 @@ var kpiYtdRateR = kpiYtdTargetR > 0 ? Math.round(ytdR / kpiYtdTargetR * 100) : 0
 var kpiMtdRateO = kpiMtdTargetO > 0 ? Math.round(mtdO / kpiMtdTargetO * 100) : 0;
 var kpiMtdRateR = kpiMtdTargetR > 0 ? Math.round(mtdR / kpiMtdTargetR * 100) : 0;
 
-// 同比（无去年数据则显示null）
+// 同比：从records中筛选去年同期数据
 var lyY = String(parseInt(Y) - 1);
-var lyYtdO = null, lyYtdR = null, lyMtdO = null, lyMtdR = null;
-
-// 尝试从同目录找去年的 bs_order 文件（如果有的话）
-// 实际项目中可能有历史数据，这里先留空，dashboard端显示"--"
+var lyDP = lyY + DP.slice(4); // 去年同期日期
+var lyMtdStart = lyY + '-' + String(rptM).padStart(2, '0') + '-01';
+var lyYtdO = records.filter(r => inRange(r.od, lyY + '-01-01', lyDP)).length;
+var lyYtdR = records.filter(r => inRange(r.re, lyY + '-01-01', lyDP)).length;
+var lyMtdO = records.filter(r => inRange(r.od, lyMtdStart, lyDP)).length;
+var lyMtdR = records.filter(r => inRange(r.re, lyMtdStart, lyDP)).length;
 
 function calcYoy(curr, last) {
   if (last === null || last === undefined || last === 0) return null;
