@@ -7,7 +7,7 @@
 // 状态管理
 // ============================================================
 const state = {
-  files: { bsOrder: null, masterdata: null },
+  files: { bsOrder: null, masterdata: null, target: null },
   records: [],
   summary: {},
   charts: {}
@@ -51,6 +51,9 @@ function updateFileList() {
   }
   if (state.files.masterdata) {
     parts.push(`<div class="file-tag"><span>📄 ${escapeHtml(state.files.masterdata.name)}</span><span class="del" data-type="masterdata">✕</span></div>`);
+  }
+  if (state.files.target) {
+    parts.push(`<div class="file-tag"><span>📄 ${escapeHtml(state.files.target.name)}</span><span class="del" data-type="target">✕</span></div>`);
   }
   list.innerHTML = parts.join('');
   list.querySelectorAll('.del').forEach(el => {
@@ -124,6 +127,7 @@ function handleFiles(fileList) {
     const name = file.name.toLowerCase();
     if (name.startsWith('bs_order') && !name.startsWith('~$')) state.files.bsOrder = file;
     else if (name.includes('masterdata')) state.files.masterdata = file;
+    else if (name.includes('target')) state.files.target = file;
   }
   updateFileList();
 }
@@ -170,7 +174,10 @@ function readExcelFile(file) {
 async function processData() {
   setLoading('正在读取 Excel 文件…');
   try {
-    const [bsWb, mdWb] = await Promise.all([readExcelFile(state.files.bsOrder), readExcelFile(state.files.masterdata)]);
+    var promises = [readExcelFile(state.files.bsOrder), readExcelFile(state.files.masterdata)];
+    if (state.files.target) promises.push(readExcelFile(state.files.target));
+    var results = await Promise.all(promises);
+    var bsWb = results[0], mdWb = results[1], targetWb = state.files.target ? results[2] : null;
     setLoading('正在解析数据…');
     const bsSheet = bsWb.Sheets[bsWb.SheetNames[0]];
     const bsRows = XLSX.utils.sheet_to_json(bsSheet, { header: 1 });
@@ -181,7 +188,13 @@ async function processData() {
     var masterMap = {};
     mdRows.forEach(r => {
       var c = String(r['细胞追溯系统代码'] || '').trim();
-      if (c) masterMap[c] = { name: String(r['标准医院名称'] || '').trim(), prov: String(r['省份'] || '').trim() };
+      if (c) masterMap[c] = {
+        name: String(r['标准医院名称'] || '').trim(),
+        prov: String(r['省份'] || '').trim(),
+        am: String(r['AM'] || '').trim(),
+        area: String(r['Area'] || '').trim(),
+        region: String(r['Region'] || '').trim()
+      };
     });
 
     var headers = bsRows[1];
@@ -206,13 +219,13 @@ async function processData() {
       var m = null;
       if (code1 && masterMap[code1]) { m = masterMap[code1]; }
       else if (code2 && masterMap[code2]) { m = masterMap[code2]; }
-      var hosp, prov;
-      if (m) { hosp = m.name; prov = m.prov; }
-      else { hosp = String(row[ci.orgName] || row[6] || '').trim(); prov = ''; }
+      var hosp, prov, am, area, region;
+      if (m) { hosp = m.name; prov = m.prov; am = m.am; area = m.area; region = m.region; }
+      else { hosp = String(row[ci.orgName] || row[6] || '').trim(); prov = ''; am = ''; area = ''; region = ''; }
       if (!hosp) continue;
       var patient = maskName(row[ci.patient]);
       var isSG = (prov === '新加坡' || prov.includes('新加坡'));
-      records.push({ hosp, prov: isSG ? '' : prov, od, re, ap, qa, noMap: isSG, patient });
+      records.push({ hosp, prov: isSG ? '' : prov, am, area, region, od, re, ap, qa, noMap: isSG, patient });
     }
 
     setLoading('正在计算指标…');
@@ -274,16 +287,153 @@ async function processData() {
     var todayA = records.filter(r => r.ap === DP).length;
     var todayQ = records.filter(r => r.qa === DP).length;
 
+    // ============================================================
+    // Target 目标数据解析（浏览器上传模式）
+    // ============================================================
+    var companyTargetMap = {};
+    var challengeTargetMap = {};
+    var rptM = dpM0;
+
+    if (targetWb) {
+      setLoading('正在解析目标数据…');
+      try {
+        var targetCompany = XLSX.utils.sheet_to_json(targetWb.Sheets['公司目标']);
+        var targetChallenge = XLSX.utils.sheet_to_json(targetWb.Sheets['挑战目标']);
+
+        targetCompany.forEach(r => {
+          var ym = String(r['YM'] || '');
+          if (ym) companyTargetMap[ym] = { o: parseFloat(r['下单']) || 0, r: parseFloat(r['回输']) || 0 };
+        });
+        targetChallenge.forEach(r => {
+          var ym = String(r['YM'] || '');
+          var am = String(r['AM'] || '');
+          if (ym && am) challengeTargetMap[am + '|' + ym] = { o: parseFloat(r['下单']) || 0, r: parseFloat(r['回输']) || 0 };
+        });
+      } catch (te) {
+        console.warn('Target.xlsx 解析失败，将使用空目标:', te);
+      }
+    }
+
+    var kpiYtdTargetO = 0, kpiYtdTargetR = 0;
+    var kpiMtdTargetO = 0, kpiMtdTargetR = 0;
+    for (var m = 1; m <= rptM; m++) {
+      var ym = Y + String(m).padStart(2, '0');
+      if (companyTargetMap[ym]) {
+        kpiYtdTargetO += companyTargetMap[ym].o;
+        kpiYtdTargetR += companyTargetMap[ym].r;
+      }
+    }
+    var mtdYM = Y + String(rptM).padStart(2, '0');
+    if (companyTargetMap[mtdYM]) {
+      kpiMtdTargetO = companyTargetMap[mtdYM].o;
+      kpiMtdTargetR = companyTargetMap[mtdYM].r;
+    }
+
+    var kpiYtdRateO = kpiYtdTargetO > 0 ? Math.round(ytdO / kpiYtdTargetO * 100) : 0;
+    var kpiYtdRateR = kpiYtdTargetR > 0 ? Math.round(ytdR / kpiYtdTargetR * 100) : 0;
+    var kpiMtdRateO = kpiMtdTargetO > 0 ? Math.round(mtdO / kpiMtdTargetO * 100) : 0;
+    var kpiMtdRateR = kpiMtdTargetR > 0 ? Math.round(mtdR / kpiMtdTargetR * 100) : 0;
+    var kpiYtdYoyO = null, kpiYtdYoyR = null, kpiMtdYoyO = null, kpiMtdYoyR = null;
+
+    // ============================================================
+    // AM 销售达成表数据构建
+    // ============================================================
+    var DOM_AM_ORDER = ['崔珺', '赵蕊', '赵俊兴', '龚卉', '高威龙', '董硕', '兰明金', '李磊'];
+    var REGION_ORDER = ['DOM', 'HK', 'SG', 'KSA'];
+
+    var amSet = new Set();
+    records.forEach(r => { if (r.am) amSet.add(r.am); });
+
+    var amByRegion = {};
+    records.forEach(r => {
+      if (!r.am) return;
+      var rg = r.region || '其他';
+      if (!amByRegion[rg]) amByRegion[rg] = new Set();
+      amByRegion[rg].add(r.am);
+    });
+
+    function sortRegion(a, b) {
+      var ia = REGION_ORDER.indexOf(a);
+      var ib = REGION_ORDER.indexOf(b);
+      if (ia >= 0 && ib >= 0) return ia - ib;
+      if (ia >= 0) return -1;
+      if (ib >= 0) return 1;
+      return a.localeCompare(b);
+    }
+    function sortAM(amList, region) {
+      if (region === 'DOM') {
+        return amList.sort((a, b) => {
+          var ia = DOM_AM_ORDER.indexOf(a);
+          var ib = DOM_AM_ORDER.indexOf(b);
+          if (ia >= 0 && ib >= 0) return ia - ib;
+          if (ia >= 0) return -1;
+          if (ib >= 0) return 1;
+          return a.localeCompare(b);
+        });
+      }
+      return amList.sort((a, b) => a.localeCompare(b));
+    }
+
+    function buildAmTable(type) {
+      var dateField = type === 'od' ? 'od' : 're';
+      var regions = Object.keys(amByRegion).sort(sortRegion);
+      var rows = [];
+      regions.forEach(rg => {
+        var amList = sortAM(Array.from(amByRegion[rg]), rg);
+        var rgHasSum = (rg === 'DOM' && amList.length > 1);
+        var rgMonthly = {};
+        var rgYtdActual = 0;
+        var rgYtdChallenge = 0;
+
+        amList.forEach(am => {
+          var monthly = new Array(12).fill(0);
+          records.forEach(r => {
+            if (r.am !== am || !r[dateField]) return;
+            var dt = r[dateField];
+            if (dt >= Y + '-01-01' && dt <= DP) {
+              var mi = parseInt(dt.slice(5, 7)) - 1;
+              if (mi < 12) monthly[mi]++;
+            }
+          });
+          var ytdActual = monthly.reduce((a, b) => a + b, 0);
+          var ytdChallenge = 0;
+          for (var m = 1; m <= rptM; m++) {
+            var key = am + '|' + Y + String(m).padStart(2, '0');
+            if (challengeTargetMap[key]) ytdChallenge += challengeTargetMap[key][type === 'od' ? 'o' : 'r'];
+          }
+          var rate = ytdChallenge > 0 ? Math.round(ytdActual / ytdChallenge * 100) : (ytdChallenge === 0 ? null : 0);
+          rows.push({ region: rg, am: am, monthly: monthly, ytdActual: ytdActual, ytdChallenge: ytdChallenge, rate: rate, yoy: null, isSum: false });
+          if (rgHasSum) {
+            for (var i = 0; i < 12; i++) rgMonthly[i] = (rgMonthly[i] || 0) + monthly[i];
+            rgYtdActual += ytdActual;
+            rgYtdChallenge += ytdChallenge;
+          }
+        });
+        if (rgHasSum) {
+          var rgRate = rgYtdChallenge > 0 ? Math.round(rgYtdActual / rgYtdChallenge * 100) : null;
+          rows.push({ region: rg, am: rg + '汇总', monthly: Object.values(rgMonthly), ytdActual: rgYtdActual, ytdChallenge: rgYtdChallenge, rate: rgRate, yoy: null, isSum: true });
+        }
+      });
+      return rows;
+    }
+
+    var amOrderTable = buildAmTable('od');
+    var amReinfusionTable = buildAmTable('re');
+
     state.records = records;
     state.summary = {
-      DP, Y, dpM, dpM0, ytdO, ytdR, mtdO, mtdR, todayO, todayR, todayA, todayQ,
+      DP, Y, dpM, dpM0, rptM,
+      ytdO, ytdR, mtdO, mtdR, todayO, todayR, todayA, todayQ,
       p7totalO, p7totalR, p7totalA, p7totalQ, topProvNames, monO, monR, mapJson, provRank5, p7,
-      // Fallback KPI without targets for upload mode
-      kpiYtdO: ytdO, kpiYtdR: ytdR, kpiYtdTargetO: 0, kpiYtdTargetR: 0,
-      kpiYtdRateO: 0, kpiYtdRateR: 0, kpiYtdYoyO: null, kpiYtdYoyR: null,
-      kpiMtdO: mtdO, kpiMtdR: mtdR, kpiMtdTargetO: 0, kpiMtdTargetR: 0,
-      kpiMtdRateO: 0, kpiMtdRateR: 0, kpiMtdYoyO: null, kpiMtdYoyR: null,
-      amOrderTable: [], amReinfusionTable: [],
+      kpiYtdO: ytdO, kpiYtdR: ytdR,
+      kpiYtdTargetO, kpiYtdTargetR,
+      kpiYtdRateO, kpiYtdRateR,
+      kpiYtdYoyO, kpiYtdYoyR,
+      kpiMtdO: mtdO, kpiMtdR: mtdR,
+      kpiMtdTargetO, kpiMtdTargetR,
+      kpiMtdRateO, kpiMtdRateR,
+      kpiMtdYoyO, kpiMtdYoyR,
+      amOrderTable, amReinfusionTable,
       headerSummary: 'YTD下单 ' + fmtNum(ytdO) + ' 单，回输 ' + fmtNum(ytdR) + ' 单；' + dpM0 + '月MTD 下单 ' + fmtNum(mtdO) + ' 单，回输 ' + fmtNum(mtdR) + ' 单'
     };
 
