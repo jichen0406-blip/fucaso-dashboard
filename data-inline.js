@@ -1,21 +1,22 @@
 /** 内置数据 — 由 build-data.js 自动生成 */
 window.BUILTIN_DATA = {
-  "DP": "2026-07-28",
+  "DP": "2026-07-30",
   "Y": "2026",
   "dpM": "07",
   "dpM0": 7,
-  "ytdO": 222,
-  "ytdR": 156,
-  "mtdO": 28,
-  "mtdR": 20,
-  "todayO": 1,
-  "todayR": 1,
-  "todayA": 1,
+  "rptM": 7,
+  "ytdO": 224,
+  "ytdR": 157,
+  "mtdO": 30,
+  "mtdR": 21,
+  "todayO": 0,
+  "todayR": 0,
+  "todayA": 0,
   "todayQ": 0,
-  "p7totalO": 5,
+  "p7totalO": 6,
   "p7totalR": 4,
-  "p7totalA": 8,
-  "p7totalQ": 6,
+  "p7totalA": 4,
+  "p7totalQ": 5,
   "topProvNames": [
     "天津",
     "北京",
@@ -28,7 +29,7 @@ window.BUILTIN_DATA = {
     36,
     30,
     28,
-    28,
+    30,
     0,
     0,
     0,
@@ -42,7 +43,7 @@ window.BUILTIN_DATA = {
     24,
     30,
     23,
-    20,
+    21,
     0,
     0,
     0,
@@ -116,7 +117,7 @@ window.BUILTIN_DATA = {
     },
     {
       "name": "湖北省",
-      "value": 8
+      "value": 9
     },
     {
       "name": "湖南省",
@@ -124,7 +125,7 @@ window.BUILTIN_DATA = {
     },
     {
       "name": "广东省",
-      "value": 27
+      "value": 28
     },
     {
       "name": "广西壮族自治区",
@@ -202,7 +203,7 @@ window.BUILTIN_DATA = {
     ],
     [
       "广东省",
-      27
+      28
     ],
     [
       "浙江省",
@@ -210,6 +211,28 @@ window.BUILTIN_DATA = {
     ]
   ],
   "p7": [
+    {
+      "date": "2026-07-30",
+      "orders": {},
+      "reinfusion": {},
+      "apheresis": {},
+      "quality": {}
+    },
+    {
+      "date": "2026-07-29",
+      "orders": {
+        "华中科技大学同济医学院附属协和医院|||卢*凯": 1,
+        "南方医科大学南方医院|||高*振": 1
+      },
+      "reinfusion": {
+        "中国医学科学院血液病医院|||张*凤": 1
+      },
+      "apheresis": {
+        "绍兴市人民医院|||戴*芬": 1,
+        "四川大学华西医院|||黄*良": 1
+      },
+      "quality": {}
+    },
     {
       "date": "2026-07-28",
       "orders": {
@@ -221,7 +244,9 @@ window.BUILTIN_DATA = {
       "apheresis": {
         "中国医学科学院血液病医院|||傅*军": 1
       },
-      "quality": {}
+      "quality": {
+        "北京大学第一医院|||刘*": 1
+      }
     },
     {
       "date": "2026-07-27",
@@ -267,36 +292,533 @@ window.BUILTIN_DATA = {
       "quality": {
         "江南大学附属医院（南院）|||徐*娣": 1
       }
-    },
-    {
-      "date": "2026-07-23",
-      "orders": {},
-      "reinfusion": {},
-      "apheresis": {
-        "华中科技大学同济医学院附属协和医院|||马*": 1,
-        "川北医学院附属医院|||刘*均": 1,
-        "上海仁济医院|||王*": 1,
-        "玛丽医院（Queen Mary Hospital）|||S*U S*I N*I": 1
-      },
-      "quality": {
-        "中山大学附属第一医院|||许*华": 1
-      }
-    },
-    {
-      "date": "2026-07-22",
-      "orders": {
-        "上海仁济医院|||王*": 1
-      },
-      "reinfusion": {
-        "天津医科大学肿瘤医院（空港院区）|||潘*娜": 1
-      },
-      "apheresis": {
-        "中国医学科学院血液病医院|||续*玲": 1,
-        "空军军医大学西京医院|||董*麟": 1
-      },
-      "quality": {
-        "山东大学齐鲁医院|||闫*芹": 1
-      }
     }
-  ]
+  ],
+  "kpiYtdO": 224,
+  "kpiYtdR": 157,
+  "kpiYtdTargetO": 248,
+  "kpiYtdTargetR": 155,
+  "kpiYtdRateO": 90,
+  "kpiYtdRateR": 101,
+  "kpiYtdYoyO": null,
+  "kpiYtdYoyR": null,
+  "kpiMtdO": 30,
+  "kpiMtdR": 21,
+  "kpiMtdTargetO": 40,
+  "kpiMtdTargetR": 24,
+  "kpiMtdRateO": 75,
+  "kpiMtdRateR": 88,
+  "kpiMtdYoyO": null,
+  "kpiMtdYoyR": null,
+  "amOrderTable": [
+    {
+      "region": "DOM",
+      "am": "崔珺",
+      "monthly": [
+        6,
+        4,
+        6,
+        8,
+        5,
+        3,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 36,
+      "ytdChallenge": 33,
+      "rate": 109,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "赵蕊",
+      "monthly": [
+        8,
+        2,
+        7,
+        6,
+        9,
+        9,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 46,
+      "ytdChallenge": 42,
+      "rate": 110,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "赵俊兴",
+      "monthly": [
+        3,
+        1,
+        4,
+        2,
+        2,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 17,
+      "ytdChallenge": 28,
+      "rate": 61,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "龚卉",
+      "monthly": [
+        2,
+        1,
+        2,
+        2,
+        3,
+        1,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 14,
+      "ytdChallenge": 13,
+      "rate": 108,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "高威龙",
+      "monthly": [
+        7,
+        3,
+        6,
+        5,
+        3,
+        2,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 34,
+      "ytdChallenge": 40,
+      "rate": 85,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "董硕",
+      "monthly": [
+        5,
+        5,
+        6,
+        2,
+        4,
+        4,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 28,
+      "ytdChallenge": 33,
+      "rate": 85,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "兰明金",
+      "monthly": [
+        3,
+        2,
+        7,
+        7,
+        3,
+        4,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 29,
+      "ytdChallenge": 31,
+      "rate": 94,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "李磊",
+      "monthly": [
+        2,
+        0,
+        3,
+        3,
+        1,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 12,
+      "ytdChallenge": 15,
+      "rate": 80,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "DOM汇总",
+      "monthly": [
+        36,
+        18,
+        41,
+        35,
+        30,
+        28,
+        28,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 216,
+      "ytdChallenge": 235,
+      "rate": 92,
+      "yoy": null,
+      "isSum": true
+    },
+    {
+      "region": "HK",
+      "am": "HK_AM1",
+      "monthly": [
+        4,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 7,
+      "ytdChallenge": 11,
+      "rate": 64,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "SG",
+      "am": "SG_AM",
+      "monthly": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 1,
+      "ytdChallenge": 1,
+      "rate": 100,
+      "yoy": null,
+      "isSum": false
+    }
+  ],
+  "amReinfusionTable": [
+    {
+      "region": "DOM",
+      "am": "崔珺",
+      "monthly": [
+        3,
+        5,
+        1,
+        1,
+        6,
+        4,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 24,
+      "ytdChallenge": 20,
+      "rate": 120,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "赵蕊",
+      "monthly": [
+        8,
+        1,
+        4,
+        6,
+        6,
+        3,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 36,
+      "ytdChallenge": 29,
+      "rate": 124,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "赵俊兴",
+      "monthly": [
+        2,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 7,
+      "ytdChallenge": 17,
+      "rate": 41,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "龚卉",
+      "monthly": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 8,
+      "ytdChallenge": 7,
+      "rate": 114,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "高威龙",
+      "monthly": [
+        4,
+        4,
+        5,
+        2,
+        6,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 25,
+      "ytdChallenge": 26,
+      "rate": 96,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "董硕",
+      "monthly": [
+        2,
+        1,
+        3,
+        5,
+        2,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 18,
+      "ytdChallenge": 21,
+      "rate": 86,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "兰明金",
+      "monthly": [
+        3,
+        1,
+        4,
+        3,
+        6,
+        5,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 24,
+      "ytdChallenge": 20,
+      "rate": 120,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "李磊",
+      "monthly": [
+        2,
+        0,
+        0,
+        1,
+        1,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 7,
+      "ytdChallenge": 10,
+      "rate": 70,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "DOM",
+      "am": "DOM汇总",
+      "monthly": [
+        25,
+        13,
+        19,
+        20,
+        29,
+        22,
+        21,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 149,
+      "ytdChallenge": 150,
+      "rate": 99,
+      "yoy": null,
+      "isSum": true
+    },
+    {
+      "region": "HK",
+      "am": "HK_AM1",
+      "monthly": [
+        0,
+        2,
+        0,
+        4,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 8,
+      "ytdChallenge": 9,
+      "rate": 89,
+      "yoy": null,
+      "isSum": false
+    },
+    {
+      "region": "SG",
+      "am": "SG_AM",
+      "monthly": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ytdActual": 0,
+      "ytdChallenge": 0,
+      "rate": null,
+      "yoy": null,
+      "isSum": false
+    }
+  ],
+  "headerSummary": "YTD下单 224 单，回输 157 单；7月MTD 下单 30 单，回输 21 单"
 };
